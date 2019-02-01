@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Destiny 2 LFG Reports
 // @namespace    http://bungie.net/
-// @version      0.0.3
+// @version      0.0.4
 // @description  Appends a raid report link and pvp info link to public fireteams on the Destiny LFG app.
 // @author       Joseph R. Quinn <quinn.josephr@protonmail.com>
 // @copyright    2019 Joseph R. Quinn
@@ -69,7 +69,7 @@
         break;
     }
     
-    return pvp_url.concat(platform, '/', user.innerText, '/detailed', (platform === 'pc') ? "".concat('?mbmid=', getPCId(user)) : '');
+    return pvp_url.concat(platform, '/', user.innerText, (platform === 'pc') ? "".concat('?mbmid=', getPCId(user)) : '');
     // return 'javascript:alert("PVP Report for PC players is currently in development");';
   }
 
