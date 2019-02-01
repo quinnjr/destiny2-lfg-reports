@@ -5,10 +5,12 @@
 // @description  Appends a raid report link and pvp info link to public fireteams on the Destiny LFG app.
 // @author       Joseph R. Quinn <quinn.josephr@protonmail.com>
 // @copyright    2019 Joseph R. Quinn
-// @license      ISC
+// @license      ISC; https://github.com/quinnjr/destiny2-lfg-reports/blob/master/LICENSE
 // @homepageURL  https://github.com/quinnjr/destiny2-lfg-reports
+// @supportURL   https://github.com/quinnjr/destiny2-lfg-reports/issues
 // @match        https://www.bungie.net/en/ClanV2/PublicFireteam?groupId=*&fireteamId=*
 // @grant        none
+// @updateURL https://openuserjs.org/meta/illuser/destiny-lfg-reports.meta.js
 // @noframess
 // ==/UserScript==
 // ==OpenUserJS==
