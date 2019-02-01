@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Destiny 2 LFG Reports
 // @namespace    http://bungie.net/
-// @version      0.0.1
+// @version      0.0.2
 // @description  Appends a raid report link and pvp info link to public fireteams on the Destiny LFG app.
 // @author       Joseph R. Quinn <quinn.josephr@protonmail.com>
 // @copyright    2019 Joseph R. Quinn
@@ -10,7 +10,7 @@
 // @supportURL   https://github.com/quinnjr/destiny2-lfg-reports/issues
 // @match        https://www.bungie.net/en/ClanV2/PublicFireteam?groupId=*&fireteamId=*
 // @grant        none
-// @updateURL https://openuserjs.org/meta/illuser/destiny-lfg-reports.meta.js
+// @updateURL    https://openuserjs.org/meta/illuser/Destiny_2_LFG_Reports.meta.js
 // @noframess
 // ==/UserScript==
 // ==OpenUserJS==
