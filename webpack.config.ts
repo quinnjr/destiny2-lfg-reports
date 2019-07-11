@@ -4,8 +4,10 @@ import TerserPlugin from 'terser-webpack-plugin';
 import { join } from 'path';
 import { readFileSync } from 'fs';
 
-export default () => {
-  return {
+import mergeWith from 'lodash.mergewith';
+
+export default (env: any) => {
+  let config = {
     context: __dirname,
     entry: {
       'destiny2-lfg-reports.user': './destiny2-lfg-reports.user.ts'
@@ -15,7 +17,8 @@ export default () => {
       filename: '[name].js',
       path: __dirname
     },
-    mode: 'production',
+    mode: 'development',
+    devtool: 'none',
     target: 'web',
     resolve: {
       extensions: [ '.ts', '.js', '.json' ]
@@ -36,23 +39,39 @@ export default () => {
       })
     ],
     optimization: {
-      minimizer: [
-        new TerserPlugin({
-          test: /\.js(\?.*)?$/i,
-          cache: true,
-          parallel: true,
-          extractComments: {
-            condition: (_ast: any, comment: any) => !(/^\s[@=].+/i.test(comment.value)),
-            filename: 'node_modules/.cache/garbage',
-            banner: false
-          },
-          terserOptions: {
-            output: {
-              comments: /\s[@=].*/i
-            }
-          }
-        })
-      ]
+      minimizer: []
     }
   }
+
+  if(env === 'production') {
+    mergeWith(config, {
+      mode: 'production',
+      optimization: {
+        minimizer: [
+          new TerserPlugin({
+            test: /\.js(\?.*)?$/i,
+            cache: true,
+            parallel: true,
+            extractComments: {
+              condition: (_ast: any, comment: any) => !(/^\s[@=].+/i.test(comment.value)),
+              filename: 'node_modules/.cache/garbage',
+              banner: false
+            },
+            terserOptions: {
+              output: {
+                comments: /\s[@=].*/i
+              }
+            }
+          })
+        ]
+      }
+    }, (objVal: any, srcVal: any) => {
+      if(Array.isArray(objVal)) {
+        return objVal.concat(srcVal);
+      }
+      return;
+    });
+  }
+
+  return config;
 }
