@@ -1,99 +1,117 @@
-// Copyright (c) 2018 Joseph R. Quinn <quinn.josephr@protonmail.com>
-// SPDX-License-Identifier: ISC
+// ==UserScript==
+// @name         Destiny 2 LFG Reports
+// @namespace    http://bungie.net/
+// @version      2.0.0
+// @description  Appends a raid report link and pvp info link to public fireteams on the Destiny LFG app.
+// @author       Joseph R. Quinn <quinn.josephr@protonmail.com>
+// @copyright    2019-2020 Joseph R. Quinn
+// @license      ISC; https://github.com/quinnjr/destiny2-lfg-reports/blob/master/LICENSE
+// @homepageURL  https://github.com/quinnjr/destiny2-lfg-reports
+// @supportURL   https://github.com/quinnjr/destiny2-lfg-reports/issues
+// @match        https://www.bungie.net/*/ClanV2/PublicFireteam?groupId=*&fireteamId=*
+// @grant        none
+// @updateURL    https://openuserjs.org/meta/illuser/Destiny_2_LFG_Reports.meta.js
+// @noframes
+// ==/UserScript==
+// ==OpenUserJS==
+// @author illuser
+// ==/OpenUserJS==
 
-class LfgReport {
-  private readonly raid_report_base: string = 'https://raid.report/';
-  private readonly destiny_tracker_base: string = 'https://destinytracker.com/d2/profile/';
-  // In place for an eventual switch to using the Bungie API only
-  // for statistics.
-  // private readonly bungie_api_base: string = 'https://www.bungie.net/Platform';
+(function() {
+  'use strict';
+  class LfgReport {
+    private readonly raid_report_base: string = 'https://raid.report/';
+    private readonly destiny_tracker_base: string = 'https://destinytracker.com/d2/profile/';
+    // In place for an eventual switch to using the Bungie API only
+    // for statistics.
+    // private readonly bungie_api_base: string = 'https://www.bungie.net/Platform';
 
-  // The platform for the LFG page.
-  public readonly platform: string;
-  // Target DOM Node for the for the Observer.
-  public readonly targetNode: Element;
+    // The platform for the LFG page.
+    public readonly platform: string;
+    // Target DOM Node for the for the Observer.
+    public readonly targetNode: Element;
 
-  constructor() {
-    let elem = document.getElementsByClassName('platform')[0];
-    switch (elem.getAttribute('data-platform')) {
-      case 'Blizzard':
-      case 'Steam': // Future-proof?
-      case 'PC': // Future-proof?
-        this.platform = 'pc';
-        break;
-      case 'Playstation4':
-        this.platform = 'ps';
-        break;
-      case 'XboxOne':
-        this.platform = 'xb';
-        break;
-      default:
-        console.error('Invalid pve platform');
-        this.platform = '';
-        break;
+    constructor() {
+      let elem = document.getElementsByClassName('platform')[0];
+      switch (elem.getAttribute('data-platform')) {
+        case 'Blizzard':
+        case 'Steam': // Future-proof?
+        case 'PC': // Future-proof?
+          this.platform = 'pc';
+          break;
+        case 'Playstation4':
+          this.platform = 'ps';
+          break;
+        case 'XboxOne':
+          this.platform = 'xb';
+          break;
+        default:
+          console.error('Invalid pve platform');
+          this.platform = '';
+          break;
+      }
+
+      this.targetNode = document.getElementsByClassName('users-fireteam')[0];
     }
 
-    this.targetNode = document.getElementsByClassName('users-fireteam')[0];
-  }
+    private get pvpPlatform(): string {
+      switch(this.platform) {
+        case 'pc':
+          return 'pc';
+          break;
+        case 'ps':
+          return 'psn';
+          break;
+        case 'xb':
+          return 'xbl'; // Double-check versus xb1;
+          break;
+        default:
+          console.error('Invalid pvp platform');
+          return '';
+          break;
+      }
+    }
 
-  private get pvpPlatform(): string {
-    switch(this.platform) {
-      case 'pc':
-        return 'pc';
-        break;
-      case 'ps':
-        return 'psn';
-        break;
-      case 'xb':
-        return 'xbl'; // Double-check versus xb1;
-        break;
-      default:
-        console.error('Invalid pvp platform');
-        return '';
-        break;
+    private getUsername(user: HTMLElement): string {
+      return (this.platform !== 'pc') ? user!.innerText
+        : user!.closest('li.user-fireteam')!
+          .getAttribute('data-membershipid')!;
+    }
+
+    private addRaidReportLink(element: HTMLElement) {
+      let link = document.createElement('a');
+      link.setAttribute('href', this.raidPlatformLink(element));
+      link.setAttribute('style', 'color: #FFF;');
+      link.setAttribute('target', '_blank');
+      link.innerHTML = '&nbsp;&nbsp;Raid Report';
+      element.insertAdjacentElement('afterend', link);
+    }
+
+    private addPvpReportLink(element: HTMLElement) {
+      let link = document.createElement('a');
+      link.setAttribute('href', this.pvpPlatformLink(element));
+      link.setAttribute('style', 'color: #FFF;');
+      link.setAttribute('target', '_blank');
+      link.innerHTML = '&nbsp;&nbsp;PVP Report';
+      element.insertAdjacentElement('afterend', link);
+    }
+
+    public raidPlatformLink(user: HTMLElement): string {
+      return encodeURI(this.raid_report_base.concat(this.platform, '/', this.getUsername(user)));
+    }
+
+    public pvpPlatformLink(user: HTMLElement): string {
+      return encodeURI(this.destiny_tracker_base.concat(this.pvpPlatform, '/', this.getUsername(user)));
+    }
+
+    public addReportLinks(el: Element) {
+      const user = el.querySelector('a.display-name') as HTMLElement;
+      this.addPvpReportLink(user);
+      this.addRaidReportLink(user);
     }
   }
 
-  private getUsername(user: HTMLElement): string {
-    return (this.platform !== 'pc') ? user!.innerText
-      : user!.closest('li.user-fireteam')!
-        .getAttribute('data-membershipid')!;
-  }
-
-  private addRaidReportLink(element: HTMLElement) {
-    let link = document.createElement('a');
-    link.setAttribute('href', this.raidPlatformLink(element));
-    link.setAttribute('style', 'color: #FFF;');
-    link.setAttribute('target', '_blank');
-    link.innerHTML = '&nbsp;&nbsp;Raid Report';
-    element.insertAdjacentElement('afterend', link);
-  }
-
-  private addPvpReportLink(element: HTMLElement) {
-    let link = document.createElement('a');
-    link.setAttribute('href', this.pvpPlatformLink(element));
-    link.setAttribute('style', 'color: #FFF;');
-    link.setAttribute('target', '_blank');
-    link.innerHTML = '&nbsp;&nbsp;PVP Report';
-    element.insertAdjacentElement('afterend', link);
-  }
-
-  public raidPlatformLink(user: HTMLElement): string {
-    return encodeURI(this.raid_report_base.concat(this.platform, '/', this.getUsername(user)));
-  }
-
-  public pvpPlatformLink(user: HTMLElement): string {
-    return encodeURI(this.destiny_tracker_base.concat(this.pvpPlatform, '/', this.getUsername(user)));
-  }
-
-  public addReportLinks(el: Element) {
-    const user = el.querySelector('a.display-name') as HTMLElement;
-    this.addPvpReportLink(user);
-    this.addRaidReportLink(user);
-  }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
+  console.log('Registering LFG Report...');
   const reporter = new LfgReport();
 
   const observer = new MutationObserver((mutations: MutationRecord[],
@@ -110,4 +128,4 @@ window.addEventListener('DOMContentLoaded', () => {
   for(let users of Array.from(reporter.targetNode.children)) {
     reporter.addReportLinks(users);
   }
-});
+})();

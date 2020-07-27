@@ -1,22 +1,23 @@
 {
+  "files": [
+    "destiny2-lfg-reports.user.ts"
+  ],
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "allowJs": false,
     "declaration": false,
-    "removeComments": true,
+    "removeComments": false,
     "importHelpers": true,
     "downlevelIteration": true,
-    "strict": true,
     "noImplicitAny": true,
-    "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
     "lib": [
-      "es2018",
+      "es2019",
       "dom"
     ],
     "allowSyntheticDefaultImports": true,

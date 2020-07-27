@@ -4,7 +4,7 @@
 // @version      2.0.0
 // @description  Appends a raid report link and pvp info link to public fireteams on the Destiny LFG app.
 // @author       Joseph R. Quinn <quinn.josephr@protonmail.com>
-// @copyright    2019 Joseph R. Quinn
+// @copyright    2019-2020 Joseph R. Quinn
 // @license      ISC; https://github.com/quinnjr/destiny2-lfg-reports/blob/master/LICENSE
 // @homepageURL  https://github.com/quinnjr/destiny2-lfg-reports
 // @supportURL   https://github.com/quinnjr/destiny2-lfg-reports/issues
@@ -16,4 +16,93 @@
 // ==OpenUserJS==
 // @author illuser
 // ==/OpenUserJS==
-!function(t){var e={};function r(n){if(e[n])return e[n].exports;var o=e[n]={i:n,l:!1,exports:{}};return t[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}r.m=t,r.c=e,r.d=function(t,e,n){r.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:n})},r.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},r.t=function(t,e){if(1&e&&(t=r(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var o in t)r.d(n,o,function(e){return t[e]}.bind(null,o));return n},r.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return r.d(e,"a",e),e},r.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},r.p="",r(r.s=0)}([function(t,e,r){"use strict";var n=this&&this.__values||function(t){var e="function"==typeof Symbol&&t[Symbol.iterator],r=0;return e?e.call(t):{next:function(){return t&&r>=t.length&&(t=void 0),{value:t&&t[r++],done:!t}}}},o=function(){function t(){switch(this.raid_report_base="https://raid.report/",this.destiny_tracker_base="https://destinytracker.com/d2/profile/",document.getElementsByClassName("platform")[0].getAttribute("data-platform")){case"Blizzard":case"Steam":case"PC":this.platform="pc";break;case"Playstation4":this.platform="ps";break;case"XboxOne":this.platform="xb";break;default:console.error("Invalid pve platform"),this.platform=""}this.targetNode=document.getElementsByClassName("users-fireteam")[0]}return Object.defineProperty(t.prototype,"pvpPlatform",{get:function(){switch(this.platform){case"pc":return"pc";case"ps":return"psn";case"xb":return"xbl";default:return console.error("Invalid pvp platform"),""}},enumerable:!0,configurable:!0}),t.prototype.getUsername=function(t){return"pc"!==this.platform?t.innerText:t.closest("li.user-fireteam").getAttribute("data-membershipid")},t.prototype.addRaidReportLink=function(t){var e=document.createElement("a");e.setAttribute("href",this.raidPlatformLink(t)),e.setAttribute("style","color: #FFF;"),e.setAttribute("target","_blank"),e.innerHTML="&nbsp;&nbsp;Raid Report",t.insertAdjacentElement("afterend",e)},t.prototype.addPvpReportLink=function(t){var e=document.createElement("a");e.setAttribute("href",this.pvpPlatformLink(t)),e.setAttribute("style","color: #FFF;"),e.setAttribute("target","_blank"),e.innerHTML="&nbsp;&nbsp;PVP Report",t.insertAdjacentElement("afterend",e)},t.prototype.raidPlatformLink=function(t){return encodeURI(this.raid_report_base.concat(this.platform,"/",this.getUsername(t)))},t.prototype.pvpPlatformLink=function(t){return encodeURI(this.destiny_tracker_base.concat(this.pvpPlatform,"/",this.getUsername(t)))},t.prototype.addReportLinks=function(t){var e=t.querySelector("a.display-name");this.addPvpReportLink(e),this.addRaidReportLink(e)},t}();window.addEventListener("DOMContentLoaded",function(){var t,e,r=new o;new MutationObserver(function(t,e){console.log("Observer fired mutation..."),t.forEach(function(t){Array.from(t.addedNodes).forEach(r.addReportLinks)})}).observe(r.targetNode,{attributes:!1,childList:!0,subtree:!1});try{for(var a=n(Array.from(r.targetNode.children)),i=a.next();!i.done;i=a.next()){var s=i.value;r.addReportLinks(s)}}catch(e){t={error:e}}finally{try{i&&!i.done&&(e=a.return)&&e.call(a)}finally{if(t)throw t.error}}})}]);
+(function () {
+    'use strict';
+    class LfgReport {
+        constructor() {
+            this.raid_report_base = 'https://raid.report/';
+            this.destiny_tracker_base = 'https://destinytracker.com/d2/profile/';
+            let elem = document.getElementsByClassName('platform')[0];
+            switch (elem.getAttribute('data-platform')) {
+                case 'Blizzard':
+                case 'Steam': // Future-proof?
+                case 'PC': // Future-proof?
+                    this.platform = 'pc';
+                    break;
+                case 'Playstation4':
+                    this.platform = 'ps';
+                    break;
+                case 'XboxOne':
+                    this.platform = 'xb';
+                    break;
+                default:
+                    console.error('Invalid pve platform');
+                    this.platform = '';
+                    break;
+            }
+            this.targetNode = document.getElementsByClassName('users-fireteam')[0];
+        }
+        get pvpPlatform() {
+            switch (this.platform) {
+                case 'pc':
+                    return 'pc';
+                    break;
+                case 'ps':
+                    return 'psn';
+                    break;
+                case 'xb':
+                    return 'xbl'; // Double-check versus xb1;
+                    break;
+                default:
+                    console.error('Invalid pvp platform');
+                    return '';
+                    break;
+            }
+        }
+        getUsername(user) {
+            return (this.platform !== 'pc') ? user.innerText
+                : user.closest('li.user-fireteam')
+                    .getAttribute('data-membershipid');
+        }
+        addRaidReportLink(element) {
+            let link = document.createElement('a');
+            link.setAttribute('href', this.raidPlatformLink(element));
+            link.setAttribute('style', 'color: #FFF;');
+            link.setAttribute('target', '_blank');
+            link.innerHTML = '&nbsp;&nbsp;Raid Report';
+            element.insertAdjacentElement('afterend', link);
+        }
+        addPvpReportLink(element) {
+            let link = document.createElement('a');
+            link.setAttribute('href', this.pvpPlatformLink(element));
+            link.setAttribute('style', 'color: #FFF;');
+            link.setAttribute('target', '_blank');
+            link.innerHTML = '&nbsp;&nbsp;PVP Report';
+            element.insertAdjacentElement('afterend', link);
+        }
+        raidPlatformLink(user) {
+            return encodeURI(this.raid_report_base.concat(this.platform, '/', this.getUsername(user)));
+        }
+        pvpPlatformLink(user) {
+            return encodeURI(this.destiny_tracker_base.concat(this.pvpPlatform, '/', this.getUsername(user)));
+        }
+        addReportLinks(el) {
+            const user = el.querySelector('a.display-name');
+            this.addPvpReportLink(user);
+            this.addRaidReportLink(user);
+        }
+    }
+    console.log('Registering LFG Report...');
+    const reporter = new LfgReport();
+    const observer = new MutationObserver((mutations, _observer) => {
+        console.log('Observer fired mutation...');
+        mutations.forEach((mutation) => {
+            let nodes = Array.from(mutation.addedNodes);
+            nodes.forEach(reporter.addReportLinks);
+        });
+    });
+    observer.observe(reporter.targetNode, { attributes: false, childList: true, subtree: false });
+    for (let users of Array.from(reporter.targetNode.children)) {
+        reporter.addReportLinks(users);
+    }
+})();
